@@ -119,12 +119,12 @@ def save_torch_model(model, name):
 
 
 def train():
-    data_loader = DataLoader(data_dir='datasets/hymenoptera_data', image_size=IMAGE_SIZE, batch_size=4)
+    data_loader = DataLoader(data_dir='/home/zhangli/Datasets/XUELANG_round2', image_size=IMAGE_SIZE, batch_size=4)
     inputs, classes = next(iter(data_loader.load_data()))
     out = torchvision.utils.make_grid(inputs)
     data_loader.show_image(out, title=[data_loader.data_classes[c] for c in classes])
 
-    # model = fine_tune_model()
+    model = fine_tune_model()
     #
     # criterion = nn.CrossEntropyLoss()
     # optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
