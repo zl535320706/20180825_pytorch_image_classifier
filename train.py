@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import time
 import copy
 import os
+import visdom
 from global_config import *
 from data_loader.data_loader import DataLoader
 from models.fine_tune_model import fine_tune_model
@@ -44,9 +45,10 @@ def train_model(data_loader, model, criterion, optimizer, lr_scheduler, num_epoc
     :return:
     """
     since_time = time.time()
-
     best_model = model
     best_acc = 0
+    viz = visdom.Visdom()
+    accuracy_point, loss_point, time_point_v = [], [], []
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
@@ -77,15 +79,24 @@ def train_model(data_loader, model, criterion, optimizer, lr_scheduler, num_epoc
                 if phase == 'train':
                     loss.backward()
                     optimizer.step()
-                print('{:s}Epoch: {} Step: {} Loss: {:.4f}'.format(phase, epoch, count, loss.data[0]))
-                # collect data info
+                current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                print('{}_{:s}_Epoch: {}/{} Step: {}/{} Loss: {:.4f}'.format(current_time, phase, epoch+1, NUM_EPOCHS,
+                                                                             count, (data_loader.data_sizes[phase]//
+                                                                                     BATCH_SIZE+1), loss.data[0]))
                 running_loss += loss.data[0]
                 running_corrects += torch.sum(predict == labels.data)
                 count += 1
 
+            # collect data info
             epoch_loss = running_loss / data_loader.data_sizes[phase]
             epoch_acc = running_corrects.float() / data_loader.data_sizes[phase]
-
+            accuracy_point.append(epoch_acc)
+            loss_point.append(epoch_loss)
+            time_point_v.append(time.time() - since_time)
+            acc_name, loss_name = phase+"_acc", phase+"_loss"
+            viz.line(X=np.column_stack((np.array(time_point_v), np.array(time_point_v))),
+                     Y=np.column_stack((np.array(accuracy_point), np.array(loss_point))),
+                     win=phase,opts=dict(legend=[acc_name, loss_name]))
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 
