@@ -51,7 +51,7 @@ def train_model(data_loader, model, criterion, optimizer, lr_scheduler, num_epoc
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
-
+        count = 1
         for phase in ['train', 'val']:
             if phase == 'train':
                 optimizer = lr_scheduler(optimizer, epoch)
@@ -77,13 +77,14 @@ def train_model(data_loader, model, criterion, optimizer, lr_scheduler, num_epoc
                 if phase == 'train':
                     loss.backward()
                     optimizer.step()
-
+                print('{:s}Epoch: {} Step: {} Loss: {:.4f}'.format(phase, epoch, count, loss.data[0]))
                 # collect data info
                 running_loss += loss.data[0]
                 running_corrects += torch.sum(predict == labels.data)
+                count += 1
 
             epoch_loss = running_loss / data_loader.data_sizes[phase]
-            epoch_acc = running_corrects / data_loader.data_sizes[phase]
+            epoch_acc = running_corrects.float() / data_loader.data_sizes[phase]
 
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
@@ -119,22 +120,21 @@ def save_torch_model(model, name):
 
 
 def train():
-    data_loader = DataLoader(data_dir='/home/zhangli/Datasets/XUELANG_round2', image_size=IMAGE_SIZE, batch_size=4)
+    data_loader = DataLoader(data_dir='/home/zhangli/Datasets/XUELANG_round2', image_size=IMAGE_SIZE, batch_size=BATCH_SIZE)
     inputs, classes = next(iter(data_loader.load_data()))
     out = torchvision.utils.make_grid(inputs)
     data_loader.show_image(out, title=[data_loader.data_classes[c] for c in classes])
 
     model = fine_tune_model()
-    #
-    # criterion = nn.CrossEntropyLoss()
-    # optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    # try:
-    #     model = train_model(data_loader, model, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=25)
-    #     save_torch_model(model, MODEL_SAVE_FILE)
-    # except KeyboardInterrupt:
-    #     print('manually interrupt, try saving model for now...')
-    #     save_torch_model(model, MODEL_SAVE_FILE)
-    #     print('model saved.')
+    criterion = nn.CrossEntropyLoss()
+    optimizer_ft = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    try:
+        model = train_model(data_loader, model, criterion, optimizer_ft, exp_lr_scheduler, num_epochs=NUM_EPOCHS)
+        save_torch_model(model, MODEL_SAVE_FILE)
+    except KeyboardInterrupt:
+        print('manually interrupt, try saving model for now...')
+        save_torch_model(model, MODEL_SAVE_FILE)
+        print('model saved.')
 
 
 def main():

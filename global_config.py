@@ -19,7 +19,9 @@
 import torch
 
 
-IMAGE_SIZE = 244
+IMAGE_SIZE = 200 # 244
+BATCH_SIZE = 100
+NUM_EPOCHS = 100
 
 USE_GPU = torch.cuda.is_available()
 MODEL_SAVE_FILE = 'ants_and_bees.pth'

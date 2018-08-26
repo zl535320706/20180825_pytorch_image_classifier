@@ -22,7 +22,8 @@ import torch.optim as optim
 from torch.autograd import Variable
 import numpy as np
 import torchvision
-from torchvision import datasets, models, transforms
+from torchvision import models, transforms
+from data_loader import folder
 import matplotlib.pyplot as plt
 import time
 import copy
@@ -62,7 +63,7 @@ class DataLoader(object):
         self._init_data_sets()
 
     def _init_data_sets(self):
-        self.data_sets = {x: datasets.ImageFolder(os.path.join(self.data_dir, x), self.data_transforms[x])
+        self.data_sets = {x: folder.ImageFolder(os.path.join(self.data_dir, x), self.data_transforms[x])
                           for x in ['train', 'val']}
 
         self.data_loaders = {x: torch.utils.data.DataLoader(self.data_sets[x], batch_size=self.batch_size,

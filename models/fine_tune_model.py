@@ -25,7 +25,7 @@ def fine_tune_model():
     model_ft = models.resnet18(pretrained=True)
     num_features = model_ft.fc.in_features
     # fine tune we change original fc layer into classes num of our own
-    model_ft.fc = nn.Linear(num_features, 2)
+    model_ft.fc = nn.Linear(num_features, 11)
 
     if USE_GPU:
         model_ft = model_ft.cuda()
