@@ -19,7 +19,7 @@
 import torch
 
 
-IMAGE_SIZE = 200 # 244
+IMAGE_SIZE = 200
 BATCH_SIZE = 100
 NUM_EPOCHS = 100
 
