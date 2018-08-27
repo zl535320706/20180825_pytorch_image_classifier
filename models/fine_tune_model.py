@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ------------------------------------------------------------------------
-from torchvision import models
+from models import resnet as models
 from torch import nn
 from global_config import *
 
