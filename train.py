@@ -140,7 +140,7 @@ def save_torch_model(model, name):
 
 
 def train():
-    data_loader = DataLoader(data_dir='/home/zhangli/Datasets/XUELANG_round2', image_size=IMAGE_SIZE, batch_size=BATCH_SIZE)
+    data_loader = DataLoader(data_dir=DATA_DIR, image_size=IMAGE_SIZE, batch_size=BATCH_SIZE)
     inputs, classes = next(iter(data_loader.load_data()))
     out = torchvision.utils.make_grid(inputs)
     data_loader.show_image(out, title=[data_loader.data_classes[c] for c in classes])

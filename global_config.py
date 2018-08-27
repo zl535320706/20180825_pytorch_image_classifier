@@ -22,6 +22,8 @@ import torch
 IMAGE_SIZE = 200
 BATCH_SIZE = 100
 NUM_EPOCHS = 100
+TEST_SIZE = 1756
+DATA_DIR = '/home/zhangli/Datasets/XUELANG_round2'
 
 USE_GPU = torch.cuda.is_available()
-MODEL_SAVE_FILE = 'ants_and_bees.pth'
+MODEL_SAVE_FILE = 'best_model.pth'

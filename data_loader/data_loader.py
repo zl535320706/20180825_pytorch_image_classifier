@@ -33,7 +33,7 @@ from PIL import Image
 
 
 class DataLoader(object):
-    def __init__(self, data_dir, image_size, batch_size=4):
+    def __init__(self, data_dir, image_size, batch_size=4,mode='train'):
         """
         this class is the normalize data loader of PyTorch.
         The target image size and transforms can edit here.
@@ -42,6 +42,7 @@ class DataLoader(object):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.image_size = image_size
+        self.mode = mode
 
         self.normalize_mean = [0.485, 0.456, 0.406]
         self.normalize_std = [0.229, 0.224, 0.225]
@@ -63,14 +64,22 @@ class DataLoader(object):
         self._init_data_sets()
 
     def _init_data_sets(self):
-        self.data_sets = {x: folder.ImageFolder(os.path.join(self.data_dir, x), self.data_transforms[x])
-                          for x in ['train', 'val']}
+        if self.mode == 'train':
+            self.data_sets = {x: folder.ImageFolder(os.path.join(self.data_dir, x), self.data_transforms[x])
+                              for x in ['train', 'val']}
 
-        self.data_loaders = {x: torch.utils.data.DataLoader(self.data_sets[x], batch_size=self.batch_size,
-                                                            shuffle=True, num_workers=4)
-                             for x in ['train', 'val']}
-        self.data_sizes = {x: len(self.data_sets[x]) for x in ['train', 'val']}
-        self.data_classes = self.data_sets['train'].classes
+            self.data_loaders = {x: torch.utils.data.DataLoader(self.data_sets[x], batch_size=self.batch_size,
+                                                                shuffle=True, num_workers=4)
+                                 for x in ['train', 'val']}
+            self.data_sizes = {x: len(self.data_sets[x]) for x in ['train', 'val']}
+            self.data_classes = self.data_sets['train'].classes
+        else:
+            self.data_sets = {'test': folder.ImageFolder(os.path.join(self.data_dir, 'test'), self.data_transforms['val'])}
+
+            self.data_loaders = {'test': torch.utils.data.DataLoader(self.data_sets['test'], batch_size=self.batch_size,
+                                                                     shuffle=True, num_workers=4)}
+            self.data_sizes = {'test': len(self.data_sets['test'])}
+            self.data_classes = self.data_sets['test'].classes
 
     def load_data(self, data_set='train'):
         return self.data_loaders[data_set]

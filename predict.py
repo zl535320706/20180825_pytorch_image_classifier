@@ -25,7 +25,7 @@ import torch
 import os
 import sys
 from data_loader.data_loader import DataLoader
-
+from torch.autograd import Variable
 
 def predict_single_image(inputs, classes_name):
     model = fine_tune_model()
@@ -52,14 +52,40 @@ def predict_single_image(inputs, classes_name):
 
 
 def predict():
-    if len(sys.argv) > 1:
-        print('predict image from : {}'.format(sys.argv[1]))
-        data_loader = DataLoader(data_dir='datasets/hymenoptera_data', image_size=IMAGE_SIZE)
-        if os.path.exists(sys.argv[1]):
-            inputs = data_loader.make_predict_inputs(sys.argv[1])
-            predict_single_image(inputs, data_loader.data_classes)
-    else:
-        print('must specific image file path.')
+        data_loader = DataLoader(data_dir=DATA_DIR, image_size=IMAGE_SIZE, batch_size=BATCH_SIZE, mode='test')
+        model = fine_tune_model()
+        model.load_state_dict(torch.load(MODEL_SAVE_FILE))
+        model.train(False)
+        img_list = data_loader.data_sets['test'].imgs
+        count = 1
+        idx_all = torch.zeros(TEST_SIZE, 11)
+        for batch_data in data_loader.load_data(data_set='test'):
+            inputs, _ = batch_data
+            inputs = Variable(inputs.cuda())
+            inputs_size = inputs.size()
+            outputs = model(inputs)
+            outputs_ls = torch.nn.functional.softmax(outputs)
+            if inputs_size[0] == BATCH_SIZE:
+                idx_all[(count - 1) * (inputs_size[0]):count * (inputs_size[0]), :] = outputs_ls.data.cpu()
+            else:
+                idx_all[(TEST_SIZE // BATCH_SIZE * BATCH_SIZE): TEST_SIZE, :] = outputs_ls.data.cpu()
+            print('{} Processing...'.format(count))
+            count = count + 1
+
+        f = open("result_20180827.csv", "w")
+        label_list = ['defect_1', 'defect_10', 'defect_2', 'defect_3', 'defect_4', 'defect_5', 'defect_6',
+                      'defect_7', 'defect_8', 'defect_9', 'norm']
+        print('filename|defect,probability', file=f)
+        for i in range(TEST_SIZE):
+            path = img_list[i]
+            name = path[0].split('/')[-1]
+            for j in range(11):
+                if idx_all[i, j] > 0.9999999999:    idx_all[i, j] = 0.9999999999
+                if idx_all[i, j] < 0.0000000001:    idx_all[i, j] = 0.0000000001
+                record = name + '|' + label_list[j] + ',' + '{:.10f}'.format(idx_all[i, j])
+                print(record, file=f)
+                print('{}/{} printing...'.format(i + 1, j + 1))
+        f.close()
 
 if __name__ == '__main__':
     predict()
