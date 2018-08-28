@@ -106,8 +106,8 @@ def train_model(data_loader, model, criterion, optimizer, lr_scheduler, num_epoc
                          Y=np.column_stack((np.array(accuracy_point_v), np.array(loss_point_v))),
                          win=phase,opts=dict(legend=[acc_name, loss_name]))
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-                phase, epoch_loss, epoch_acc))
+            print('{} Loss: {:.4f} Acc: {:.4f} best_val_acc: {:.4f}'.format(
+                phase, epoch_loss, epoch_acc, best_acc))
 
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc

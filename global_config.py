@@ -20,7 +20,7 @@ import torch
 
 
 IMAGE_SIZE = 256
-BATCH_SIZE = 100
+BATCH_SIZE = 40
 NUM_EPOCHS = 100
 TEST_SIZE = 1756
 DATA_DIR = '/home/zhangli/Datasets/XUELANG_round2'
